@@ -1,9 +1,9 @@
 <template>
-<!-- 可是没有根组件 -->
+  <!-- 可是没有根组件 -->
   <div class="home">
     <!-- <img alt="Vue logo" src="../assets/logo.png"> -->
     <!-- <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/> -->
-    <div>{{count}}</div>
+    <!-- <div>{{count}}</div>
     <button @click="ceshi1({})">按钮1</button>
     <p>==============</p>
     <input type="text" v-model="user.name1">
@@ -16,7 +16,19 @@
     <h1 @click="changeName">测试</h1>
     <h1>{{name1}}</h1>
     <h1>{{name2}}</h1>
-    <input type="text" ref="refInput">
+    <input type="text" ref="refInput"> -->
+    <p v-for="(item, i) in todos" :key="i" :style="{'background':bColor,'color':myColor}"
+    @mouseenter="mouseHandel(true)" @mouseleave="mouseHandel(false)">
+      {{ item.id }}+++{{ item.name }}----{{ item.flag }}
+      <button v-if="show">删除</button>
+    </p>
+    <li @mouseenter="mouseHandler(true)" @mouseleave="mouseHandler(false)">
+      <label>
+        <input type="checkbox" v-model="todo.isComplated" />
+        <span>{{ todo.title }}</span>
+      </label>
+      <button>删除</button>
+    </li>
   </div>
 </template>
 
@@ -26,74 +38,125 @@
 //ref定义响应式的对象 reactive定义响应式的复杂对象
 //toRefs把一个响应式的对象变成一个普通对象
 //ref的另一个用法  input框自动获取焦点
-import { defineComponent,reactive,ref,computed,watch,toRefs, onMounted, watchEffect } from 'vue';
+import { Todo } from "../views/type/todo";
+import {
+  defineComponent,
+  reactive,
+  ref,
+  computed,
+  watch,
+  toRefs,
+  onMounted,
+  watchEffect,
+} from "vue";
 // import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
 
 export default defineComponent({
   //当前组件的名字
-  name: 'Home',
+  name: "Home",
   // components: {
   //   HelloWorld,
   // },
-  setup(){
-    const refInput=ref<HTMLElement|null>(null)
-    onMounted(()=>{
-      refInput.value&&refInput.value.focus()
-    })
+  setup() {
+    const bColor=ref('white')
+    const myColor=ref('black')
+    const show=ref(false)
+    const state = reactive<{ todos: Todo[] }>({
+      todos: [
+        { id: 1, name: "name1", flag: true },
+        { id: 2, name: "name2", flag: false },
+        { id: 3, name: "name3", flag: true },
+      ],
+    });
+    const mouseHandel=(flag: boolean)=>{
+      if(flag){
+        console.log("1")
+        bColor.value='pink'
+        myColor.value="green"
+        show.value=true
+      }else{
+        bColor.value='white'
+        myColor.value="black"
+        show.value=false
+      }
+    }
+    const todo = reactive({
+      isComplated: true,
+      title: "title",
+    });
+    const mouseHandler = (flag: string) => {
+      console.log(flag);
+      if(flag){
+        console.log("1");
+      }else{
+        console.log("2");
+      }
+    };
+
+    const refInput = ref<HTMLElement | null>(null);
+    onMounted(() => {
+      refInput.value && refInput.value.focus();
+    });
     // const obj={
     //   name1:String,
     //   name2:Number
     // }
-    const user=reactive({
-      name1:"东方",
-      name2:"不败"
-    })
-    const obj={
-      name:"小米",
-      age:10,
-      wife:{
-        name:"小团体",
-        age:52,
-        cars:["奔驰","宝马"]
-      }
-    }
-    const count=ref(0)//ref是一个函数，定义一个响应式对象，setup里面需要用。value取值，模板里面不需要
-    const count1=reactive(obj)
-    const changeGenxin=()=>{
-      count1.name="小米111111111"
-    }
-    function genxin(){
-      count.value++
-    }
-    const fullName1=computed(()=>{
-      return user.name1+'_'+user.name2
-    })
-    const fullName2=computed({
-      get(){
-        return user.name1+'_'+user.name2
+    const user = reactive({
+      name1: "东方",
+      name2: "不败",
+    });
+    const obj = {
+      name: "小米",
+      age: 10,
+      wife: {
+        name: "小团体",
+        age: 52,
+        cars: ["奔驰", "宝马"],
       },
-      set(val){
-        console.log(val)
-      }
-    })
-    function ceshi1(data: string){
-      console.log(data)
-      return data
+    };
+    const count = ref(0); //ref是一个函数，定义一个响应式对象，setup里面需要用。value取值，模板里面不需要
+    const count1 = reactive(obj);
+    const changeGenxin = () => {
+      count1.name = "小米111111111";
+    };
+    function genxin() {
+      count.value++;
     }
-    function changeName(){
-      user.name1+="----"
-      user.name2+="----"
+    const fullName1 = computed(() => {
+      return user.name1 + "_" + user.name2;
+    });
+    const fullName2 = computed({
+      get() {
+        return user.name1 + "_" + user.name2;
+      },
+      set(val) {
+        console.log(val);
+      },
+    });
+    function ceshi1(data: string) {
+      console.log(data);
+      return data;
     }
-    const fullName3=ref('')
-    watch(user,(n,o)=>{
-      console.log(n,o)
-    },{immediate:true,deep:true})
+    function changeName() {
+      user.name1 += "----";
+      user.name2 += "----";
+    }
+    const fullName3 = ref("");
+    watch(
+      user,
+      (n, o) => {
+        console.log(n, o);
+      },
+      { immediate: true, deep: true }
+    );
     //immediate默认会执行一次  deep深度监听
     //不直接制度监视的数据。回调函数中改变就会改变
-    watchEffect(()=>{
-      fullName3.value=user.name1+user.name2
-    })
+    watchEffect(() => {
+      fullName3.value = user.name1 + user.name2;
+    });
     return {
+      mouseHandel,
+      ...toRefs(state),
       count,
       genxin,
       count1,
@@ -105,8 +168,10 @@ export default defineComponent({
       ceshi1,
       ...toRefs(user),
       changeName,
-      refInput
-    }
-  }
+      refInput,
+      todo,
+      mouseHandler,
+    };
+  },
 });
 </script>
