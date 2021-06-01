@@ -11,7 +11,7 @@ export default defineComponent({
   setup() {
     const x=ref(-1)
     const y=ref(-1)
-    const handleClick=(event)=>{
+    const handleClick=(event: any)=>{
       x.value=event.pageX
       y.value=event.pageY
     }
