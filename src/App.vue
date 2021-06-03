@@ -1,59 +1,104 @@
 <template>
-  <div id="nav">
-    <!-- <p v-for="(item, i) in todos" :key="i" :style="{'background':bColor,'color':myColor}"
-    @mouseenter="mouseHandel(true)" @mouseleave="mouseHandel(false)">
-      {{ item.id }}+++{{ item.name }}----{{ item.flag }}
-      <button v-if="show">删除</button>
-    </p> -->
-    <!-- <router-link to="/">Home</router-link> | -->
-    <!-- <router-link to="/about/1">About</router-link> | -->
-    <!-- <router-link to="/page/123">page</router-link> -->
-    <router-link to="/setup">setup</router-link>  |
-    <router-link to="/computed">computed</router-link>  |
-    <router-link to="/hook">鼠标点击事件坐标hook函数</router-link>  |
-    <router-link to="/toRefs">toRefs</router-link>    | 
-    <router-link to="/todoList">todoList</router-link>
-  </div>
+  <!-- <div id="app"> -->
+  <header
+    class="myNavbar header-nav-center crypto_dark header_fixed_sticky"
+    v-if="$route.path != '/' && $route.path != '/home'"
+  >
+    <div class="container">
+      <nav class="navbar navbar-expand-lg navbar-light">
+        <a href="#" class="logo navbar-brand"
+          ><img src="./assets/eman.png" alt="ICO Crypto" class="logo_default"
+        /></a>
+        <h1 class="routeInfoH1" style="color: #fff;font-size: 18px;height:100%">
+          <template
+            v-if="
+              $route.path != '/WaitArranged' &&
+                $route.path != '/setting' &&
+                $route.path != '/login'
+            "
+          >
+            <span
+              class="routeInfoSpan"
+              :style="{
+                borderBottom:
+                  routeInfoSpanIndex == i ? `4px solid #A9C5FF` : '',
+              }"
+              v-for="(item, i) in routeInfo"
+              :key="i"
+              @click="goRoute(item, i)"
+              >{{ item.name }}</span
+            >
+          </template>
+          <template v-else
+            ><span class="routeInfoName">{{ $route.name }}</span></template
+          >
+        </h1>
+      </nav>
+    </div>
+  </header>
+
+  <!-- </div> -->
+  <div
+      :style="{
+        marginTop: $route.path == '/' || $route.path == '/home' ? '' : '64px',height:'100%'
+      }"
+      class="classRouter"
+    >
   <router-view />
+</div>
 </template>
 <script lang="ts">
 //定义一个接接口约束数据类型
-import { Todo } from "./views/type/todo";
-import { defineComponent, reactive, toRefs,ref,computed } from "vue";
+// import { Todo } from "./views/type/todo";
+import { defineComponent, reactive, ref } from "vue";
+import { pGetToken } from "@/api/productPlan";
 export default defineComponent({
   setup() {
-    //定义数组数据
-    const state = reactive<{ todos: Todo[] }>({
-      todos: [
-        { id: 1, name: "name1", flag: true },
-        { id: 2, name: "name2", flag: false },
-        { id: 3, name: "name3", flag: true },
-      ],
-    });
-    const bColor=ref('white')
-    const myColor=ref('black')//进入颜色show
-    const show=ref(false)
-    const mouseHandel=(flag: boolean)=>{
-      if(flag){
-        console.log("1")
-        bColor.value='pink'
-        myColor.value="green"
-        show.value=true
-      }else{
-        bColor.value='white'
-        myColor.value="black"
-        show.value=false
+    const list = reactive([]);
+    const token = ref("");
+    const routeInfoSpanIndex = () => {
+      const a = localStorage.getItem("index");
+      return a || "";
+    };
+    const routeInfo = reactive([
+      { name: "产品出货计划", path: "/productPlan" },
+      { name: "资源计划", path: "/resourcePlan" },
+      { name: "资源负荷", path: "/resourceload" },
+      { name: "物料供应计划", path: "/materialplannt" },
+      { name: "工单生产计划", path: "/resourceAnalysis" },
+    ]);
+    const goRoute = (item: any, i: any) => {
+      // this.$router.replace(item.path);
+      // this.routeInfoSpanIndex = i;
+      // this.$ls.set("index", i);
+      console.log(item + i);
+    };
+    function getToken() {
+      const token=localStorage.getItem("onlyToken")
+      console.log("onlyToken")
+      if(token==null&&!token){
+        pGetToken({})
+        .then((res: any) => {
+          if (res.code == 200) {
+            localStorage.setItem(
+              "onlyToken",
+              res.data
+            );
+            // this.clickAdd(res.data);
+          }
+        })
+        .catch((err: any) => {
+          console.log(err);
+        });
       }
     }
-    // const comCheck=computed()=>{
-
-    // }
+    getToken()
     return {
-      ...toRefs(state),
-      mouseHandel,
-      bColor,
-      myColor,
-      show
+      list,
+      token,
+      routeInfoSpanIndex,
+      routeInfo,
+      goRoute,
     };
   },
 });
@@ -78,5 +123,104 @@ export default defineComponent({
 
 #nav a.router-link-exact-active {
   color: #42b983;
+}
+#app {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  left: 0px;
+  bottom: 0;
+  overflow: hidden !important;
+}
+.classRouter {
+  height: calc(100vh - 64px);
+}
+.classRouter > div {
+  height: 100%;
+  /* background:#f0f7ff; */
+}
+.myNavbar {
+  z-index: 2;
+  top: 0px;
+  right: 0px;
+  left: 0px;
+  width: 100%;
+  position: fixed;
+  background: #1b65f9;
+  /* background-image: linear-gradient(to right,#5468ff, #48e8ff); */
+}
+.navbar {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+}
+.navbar-expand-lg {
+  justify-content: flex-start;
+  flex-flow: row nowrap;
+}
+header .navbar {
+  height: 64px;
+  padding: 0px;
+}
+.navbar-brand {
+  display: inline-block;
+  padding-top: 0.3125rem;
+  padding-bottom: 0.3125rem;
+  margin-right: 1rem;
+  font-size: 1.25rem;
+  line-height: inherit;
+  white-space: nowrap;
+}
+header .navbar .navbar-brand {
+  font-weight: 600;
+  font-size: 22px;
+}
+.logo img {
+  vertical-align: bottom;
+  margin-right: 0.5rem;
+}
+.logo_default {
+  display: block;
+  width: 150px;
+  margin-left: 42px;
+}
+.logo__sticky {
+  display: none;
+}
+.container {
+  max-width: 100%;
+  width: 100%;
+}
+.routeInfoSpan {
+  font-size: 18px;
+  color: #ffffff;
+  font-weight: 400;
+  cursor: pointer;
+  margin-left: 20px;
+  display: inline-block;
+  height: 100%;
+  line-height: 64px;
+}
+.routeInfoH1 {
+  width: 100%;
+  margin-left: -258px;
+  text-align: center;
+  padding-bottom: 8px;
+}
+.routeInfoName {
+  font-size: 18px;
+  color: #ffffff;
+  font-weight: 400;
+  cursor: pointer;
+  margin-left: 20px;
+  display: inline-block;
+  height: 100%;
+  line-height: 64px;
+}
+.gantt_message_area {
+  display: none !important;
 }
 </style>

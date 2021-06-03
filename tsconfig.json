@@ -32,7 +32,7 @@
     "src/**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx"
-  ],
+, "src/api/productPlan/index.js"  ],
   "exclude": [
     "node_modules"
   ]
